@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import HTTPException
 from geopy.distance import geodesic
 from sqlalchemy import text
@@ -5,6 +7,8 @@ from sqlalchemy import text
 from app.address_book.models import Address
 from app.address_book.schemas import AddressCreate, AddressUpdate
 from app.api.config.db import get_db
+
+logger = logging.getLogger("addressbook")
 
 
 class AddressService:
@@ -27,21 +31,38 @@ class AddressService:
         self.db = next(get_db())
 
     def create(self, address: AddressCreate):
+        logger.info("[AddressService] [create] started creating of new address")
         new_address = Address(
             address=address.address,
             landmark=address.landmark,
             latitude=address.latitude,
-            longitude=address.longitude
+            longitude=address.longitude,
         )
 
         self.db.add(new_address)
         self.db.commit()
         self.db.refresh(new_address)
+        logger.info(
+            f"[AddressService] [create] created new address id {new_address.id}"
+        )
         return new_address
 
-    def update(self, address_id, address_update: AddressUpdate):
+    def get_address(self, address_id):
+        logger.info("[AddressService] [get_address] fetching a single address from db")
         address = self.db.query(Address).get(address_id)
         if not address:
+            logger.exception("[AddressService] [get_address] address not found")
+            raise HTTPException(status_code=404, detail="Address not found")
+        return address
+
+    def update(self, address_id, address_update: AddressUpdate):
+        logger.info(
+            "[AddressService] [update] updating a single address fields: ",
+            address_update,
+        )
+        address = self.db.query(Address).get(address_id)
+        if not address:
+            logger.exception("[AddressService] [get_address] address not found")
             raise HTTPException(status_code=404, detail="Address not found")
 
         if address_update.landmark is not None:
@@ -55,15 +76,26 @@ class AddressService:
 
         self.db.commit()
         self.db.refresh(address)
+        logger.info(
+            "[AddressService] [update] successfully updated address fields: ",
+            address_update,
+        )
         return address
 
     def delete(self, address_id):
+        logger.info(
+            f"[AddressService] [delete] deleting single address from db of address_id: {address_id}"
+        )
         address = self.db.query(Address).get(address_id)
         if not address:
+            logger.exception("[AddressService] [get_address] address not found")
             raise HTTPException(status_code=404, detail="Address not found")
 
         self.db.delete(address)
         self.db.commit()
+        logger.info(
+            f"[AddressService] [delete] successfully deleted address from db of address_id: {address_id}"
+        )
         return {"message": "Address deleted"}
 
     def get(self, latitude: float, longitude: float, distance: float):
@@ -80,8 +112,10 @@ class AddressService:
                 "address": row.address,
                 "landmark": row.landmark,
                 "latitude": row.latitude,
-                "longitude": row.longitude
-            } for row in result]
+                "longitude": row.longitude,
+            }
+            for row in result
+        ]
         return addresses
 
     def get_using_geodesic(self, latitude: float, longitude: float, distance: float):

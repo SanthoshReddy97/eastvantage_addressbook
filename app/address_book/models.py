@@ -13,6 +13,7 @@ class Address(Base):
             latitude: float
             longitude: float
     """
+
     __tablename__ = "addresses"
 
     id = Column(Integer, primary_key=True, index=True)

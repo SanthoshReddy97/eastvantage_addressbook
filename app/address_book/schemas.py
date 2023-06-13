@@ -14,10 +14,10 @@ class AddressCreate(BaseModel):
     latitude: confloat(ge=-90, le=90)
     longitude: confloat(ge=-180, le=180)
 
-    @validator('latitude', 'longitude')
+    @validator("latitude", "longitude")
     def validate_coordinates(cls, value):
         if not isinstance(value, float):
-            raise ValueError('Latitude/Longitude should be specified in decimal values')
+            raise ValueError("Latitude/Longitude should be specified in decimal values")
         return value
 
 
@@ -27,8 +27,8 @@ class AddressUpdate(BaseModel):
     latitude: confloat(ge=-90, le=90) = None
     longitude: confloat(ge=-180, le=180) = None
 
-    @validator('latitude', 'longitude')
+    @validator("latitude", "longitude")
     def validate_coordinates(cls, value):
         if not isinstance(value, float):
-            raise ValueError('Latitude/Longitude should be specified in decimal values')
+            raise ValueError("Latitude/Longitude should be specified in decimal values")
         return value

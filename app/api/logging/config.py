@@ -16,15 +16,13 @@ class LogConfig(BaseModel):
             "()": "uvicorn.logging.DefaultFormatter",
             "fmt": LOG_FORMAT,
             "datefmt": "%Y-%m-%d %H:%M:%S",
-        },
+        }
     }
     handlers = {
         "default": {
             "formatter": "default",
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stderr",
-        },
+        }
     }
-    loggers = {
-        LOGGER_NAME: {"handlers": ["default"], "level": LOG_LEVEL},
-    }
+    loggers = {LOGGER_NAME: {"handlers": ["default"], "level": LOG_LEVEL}}

@@ -67,5 +67,5 @@ def base_url():
         "version": VERSION,
         "debug": DEBUG,
         "allowed_hosts": ALLOWED_HOSTS,
-        "api_prefix": API_PREFIX
+        "api_prefix": API_PREFIX,
     }
